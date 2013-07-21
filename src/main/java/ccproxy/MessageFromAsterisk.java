@@ -124,7 +124,6 @@ public class MessageFromAsterisk {
 				e.login(agentConnection);
 				knownMsg = true;
 			}
-            knownMsg = agentLoggedOut(asteriskResponse, w, e, knownMsg, agentConnection);
 
 			if (asteriskResponse.equals("No such agent")) {
 				w.wiadomosc = "+ERR NO AGENT";
@@ -451,16 +450,6 @@ public class MessageFromAsterisk {
 		}
 
 	}
-
-    private boolean agentLoggedOut(String asteriskResponse, WiadomoscOdAsteriska w, Events e, boolean knownMsg, AgentConnection agentConnection) {
-        if (asteriskResponse.equals("Agent logged out")) {
-            w.wiadomosc = "+OK LOGGED OUT";
-            // removeAgentFromQueues(w.numer);
-            e.logout(agentConnection);
-            knownMsg = true;
-        }
-        return knownMsg;
-    }
 
     synchronized private void removeAgentFromQueues(int numer) {
 		AgentConnection a;
