@@ -1,27 +1,44 @@
 package ccproxy;
 
-import org.apache.log4j.Logger;
-
 import pl.cc.SystemCoreState;
 import pl.cc.core.PauseTypeList;
 
-public class Parametry {
-	
-	PauseTypeList pauseTypeList = new PauseTypeList();
-	/**
-	 * Tutaj przechowywany jest aktalny stan systemu
-	 * Wykorzysywane do przesyłania listy aktualnie trwających połączeń dla nowo zalogowanych agentów
-	 */
-	SystemCoreState coreState = new SystemCoreState(pauseTypeList);
+import org.apache.log4j.Logger;
 
-	AgentConnectionList agenci = new AgentConnectionList(coreState);
-	AsteriskQueueList asteriskQueueList = new AsteriskQueueList(coreState);
-	
-	
-	DBConnection dbConn;
-	org.apache.log4j.Logger log = Logger.getLogger(Parametry.class);
-	GadajAsterisk gadajAsterisk;
-	ReadConfig c;
-	
-	
+public class Parametry {
+
+  PauseTypeList pauseTypeList;
+  /**
+   * Tutaj przechowywany jest aktalny stan systemu
+   * Wykorzysywane do przesyłania listy aktualnie trwających połączeń dla nowo zalogowanych agentów
+   */
+  SystemCoreState coreState;
+
+  AgentConnectionList agenci;
+  AsteriskQueueList asteriskQueueList;
+
+
+  DBConnection dbConn;
+  GadajAsterisk gadajAsterisk;
+  ReadConfig c;
+
+  org.apache.log4j.Logger log = Logger.getLogger(Parametry.class);
+
+
+  public Parametry() {
+    pauseTypeList = new PauseTypeList();
+    coreState = new SystemCoreState(pauseTypeList);
+    agenci = new AgentConnectionList(coreState);
+    asteriskQueueList = new AsteriskQueueList(coreState);
+  }
+
+
+  public Parametry(PauseTypeList pauseTypeList,
+      SystemCoreState coreState,
+      AgentConnectionList agenci, AsteriskQueueList asteriskQueueList) {
+    this.pauseTypeList = pauseTypeList;
+    this.coreState = coreState;
+    this.agenci = agenci;
+    this.asteriskQueueList = asteriskQueueList;
+  }
 }

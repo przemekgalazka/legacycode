@@ -1,17 +1,5 @@
 package ccproxy;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.apache.log4j.Logger;
-
-import pl.cc.ProxyEventListener;
-import pl.cc.ProxyTasks;
-import pl.cc.core.AgentStatusInQueue;
-import pl.cc.core.LoginCredentials;
-import pl.cc.core.PauseType;
 import pl.cc.core.cmd.Command;
 import pl.cc.core.cmd.EventProxyClientPause;
 import pl.cc.exceptions.AgentNotFoundException;
@@ -19,6 +7,12 @@ import pl.cc.exceptions.QueueNotFoundException;
 import pl.cc.real.RealAgent;
 import pl.cc.real.RealCall;
 import pl.cc.real.RealQueue;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 
 public class MessageFromAsterisk {
 	org.apache.log4j.Logger log = Logger.getLogger(MessageFromAsterisk.class);
@@ -62,7 +56,7 @@ public class MessageFromAsterisk {
 		if (p.c.logAsteriskEvents){
 			Iterator<String> i = messageHash.values().iterator();
 			Iterator<String> j = messageHash.keySet().iterator();
-	
+
 			p.log.info("--------Event begin");
 			p.log.info(event);
 			while (i.hasNext()) {
@@ -103,17 +97,9 @@ public class MessageFromAsterisk {
 				return;
 			agentConnection = wAgent.agent;
 
-			if (asteriskResponse.equals("Agent logged in")) {
-				w.wiadomosc = "+OK LOGGED IN";
-				/*
-				 * po poprawnym zalogowaniu, dodajemy agenta do odpowiednich
-				 * kolejek na podstawie bazy danych ale tylko, jesli to nie jest
-				 * supervisor
-				 */
-				e.login(agentConnection);
-				knownMsg = true;
-			}
-			if (asteriskResponse.equals("Agent already logged in")) {
+          knownMsg = agentLoggedIn(asteriskResponse, agentConnection, knownMsg, w);
+
+          if (asteriskResponse.equals("Agent already logged in")) {
 				w.wiadomosc = "+OK AGENT ALREADY LOGGED IN";
 				removeAgentFromQueues(w.numer);
 				/*
@@ -136,7 +122,7 @@ public class MessageFromAsterisk {
 				knownMsg = true;
 			}
 			if (asteriskResponse.equals("Interface paused successfully")) {
-				
+
 				Command c = wAgent.getCmd();
 				if (c != null){
 					String pauseType = ((EventProxyClientPause)c).getPauseType();
@@ -144,10 +130,10 @@ public class MessageFromAsterisk {
                     int timePoor = ((EventProxyClientPause)c).getTimePoor();
                     int timeBad = ((EventProxyClientPause)c).getTimeBad();
 					e.pause(agentConnection, pauseType, pauseTime, timePoor, timeBad);
-					w.wiadomosc = "+OK PAUSED:'"+pauseType+"'"; 
+					w.wiadomosc = "+OK PAUSED:'"+pauseType+"'";
 				} else {
 					e.pause(agentConnection);
-					w.wiadomosc = "+OK PAUSED"; 
+					w.wiadomosc = "+OK PAUSED";
 				}
 				knownMsg = true;
 			}
@@ -159,7 +145,7 @@ public class MessageFromAsterisk {
 			// Queue 'bluzeczka', Action 'add'
 			if (asteriskResponse.equals("Added interface to queue")) {
 				String penalty = wAgent.agent.queuePenalty.get(wAgent.param);
-				boolean pausedInQueue = (wAgent.agent.isNewConnected() && p.c.pauseWhenStartup); 
+				boolean pausedInQueue = (wAgent.agent.isNewConnected() && p.c.pauseWhenStartup);
 				w.wiadomosc = "+INFO Queue '" + wAgent.param + "', Action 'add', Penalty '" + penalty + "', " +
 						"Paused '"+pausedInQueue+"'";
 				p.asteriskQueueList.updateQueueMember(p, wAgent.param,
@@ -412,7 +398,7 @@ public class MessageFromAsterisk {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						
+
 						if (pauseTime !=0){
 							String line;
 							if (p.c.requestCallTag){
@@ -442,7 +428,7 @@ public class MessageFromAsterisk {
                             }
                             p.gadajAsterisk.sendMessage(agentConnection,line);
 						}
-						
+
 					}
 					e.agentComplete(qname, agentConnection.agentNumber, exten,
 							reason, uniqueid);
@@ -451,15 +437,32 @@ public class MessageFromAsterisk {
 
 	}
 
-    synchronized private void removeAgentFromQueues(int numer) {
+
+ protected boolean agentLoggedIn(String asteriskResponse, AgentConnection agentConnection,
+      boolean knownMsg, WiadomoscOdAsteriska w) {
+    if (asteriskResponse.equals("Agent logged in")) {
+      w.wiadomosc = "+OK LOGGED IN";
+        /*
+         * po poprawnym zalogowaniu, dodajemy agenta do odpowiednich
+         * kolejek na podstawie bazy danych ale tylko, jesli to nie jest
+         * supervisor
+         */
+      e.login(agentConnection);
+      knownMsg = true;
+    }
+    return knownMsg;
+  }
+
+
+  synchronized private void removeAgentFromQueues(int numer) {
 		AgentConnection a;
 		ResultSet rs;
 		String qname;
 		if ((a = p.gadajAsterisk.getWiadomoscByNumer(numer).agent) != null) {
-			
+
 				rs = p.dbConn
 						.query("SELECT nazwa from v_agent_queue where numer ='"
-								+ a.agentNumber + "'");
+                            + a.agentNumber + "'");
 			try {
 				while (rs.next()) {
 					qname = new String(rs.getString("nazwa"));
