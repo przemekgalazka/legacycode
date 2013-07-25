@@ -52,7 +52,7 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.processMessage(agentLoggedInResponse, agentConnection,
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
         knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
@@ -69,7 +69,7 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.processMessage(agentLoggedInResponse, agentConnection,
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
         knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
@@ -85,18 +85,16 @@ public class MessageFromAsteriskTest {
     String agentResponse = "Agent already logged in";
     boolean knownMsg = false;
 
-    sut = spy(sut);
-    doNothing().when(sut).removeAgentFromQueues(anyInt());
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.processMessage(agentResponse, agentConnection, knownMsg, wiadomosc);
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentResponse, agentConnection, knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
     assertThat(wiadomosc.getWiadomosc()).isEqualTo("+OK AGENT ALREADY LOGGED IN");
     assertThat(actualResult).isEqualTo(true);
 
     verify(events).login(agentConnection);
-    verify(sut).removeAgentFromQueues(anyInt());
+    verify(sut.p).removeAgentFromQueues(anyInt());
 
   }
 
@@ -109,7 +107,7 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.processMessage(agentLoggedInResponse, agentConnection,
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
         knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------

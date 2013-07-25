@@ -27,6 +27,8 @@ public class MessageFromAsterisk {
 
   Parametry p;
 
+  AgentResponseProcessor agentResponsProcessor;
+
 
   public MessageFromAsterisk(Parametry params) {
     this(params, new Events(params));
@@ -36,6 +38,7 @@ public class MessageFromAsterisk {
   public MessageFromAsterisk(Parametry p, Events e) {
     this.p = p;
     this.e = e;
+    this.agentResponsProcessor = new AgentResponseProcessor(p, e);
   }
 
 
@@ -106,7 +109,7 @@ public class MessageFromAsterisk {
         return;
       agentConnection = wAgent.agent;
 
-      knownMsg = processMessage(asteriskResponse, agentConnection, knownMsg, w);
+      knownMsg = agentResponsProcessor.processMessage(asteriskResponse, agentConnection, knownMsg, w);
       ;
 
       if (asteriskResponse.equals("No such agent")) {
@@ -436,70 +439,9 @@ public class MessageFromAsterisk {
   }
 
 
-  protected boolean processMessage(String asteriskResponse, AgentConnection agentConnection,
-      boolean knownMsg, WiadomoscOdAsteriska w) {
-    if (asteriskResponse.equals("Agent logged in")) {
-      w.wiadomosc = "+OK LOGGED IN";
-        /*
-         * po poprawnym zalogowaniu, dodajemy agenta do odpowiednich
-         * kolejek na podstawie bazy danych ale tylko, jesli to nie jest
-         * supervisor
-         */
-      e.login(agentConnection);
-      knownMsg = true;
-    }
-
-    if (asteriskResponse.equals("Agent already logged in")) {
-      w.wiadomosc = "+OK AGENT ALREADY LOGGED IN";
-      removeAgentFromQueues(w.numer);
-              /*
-               * po poprawnym zalogowaniu, dodajemy agenta do odpowiednich
-               * kolejek na podstawie bazy danych ale tylko, jesli to nie jest
-               * supervisor
-               */
-      e.login(agentConnection);
-      knownMsg = true;
-    }
-
-    if (asteriskResponse.equals("Agent logged out")) {
-      w.wiadomosc = "+OK LOGGED OUT";
-      e.logout(agentConnection);
-      knownMsg = true;
-    }
-
-    return knownMsg;
-  }
-
-
   protected boolean agentLogout(String asteriskResponse, AgentConnection agentConnection,
       boolean knownMsg, WiadomoscOdAsteriska w) {
     return knownMsg;
-  }
-
-
-  synchronized protected void removeAgentFromQueues(int numer) {
-    AgentConnection a;
-    ResultSet rs;
-    String qname;
-    if ((a = p.gadajAsterisk.getWiadomoscByNumer(numer).agent) != null) {
-
-      rs = p.dbConn
-          .query("SELECT nazwa from v_agent_queue where numer ='"
-              + a.agentNumber + "'");
-      try {
-        while (rs.next()) {
-          qname = new String(rs.getString("nazwa"));
-          p.gadajAsterisk.sendMessage(a, "removequeue:" + qname,
-              false);
-          p.log.info("Automatyczne usuniecie agenta '"
-              + a.agentNumber + "' z  kolejki:" + qname);
-          // p.gadajAsterisk.out.print("Action: QueueAdd");
-        }
-      } catch (SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
   }
 
 
