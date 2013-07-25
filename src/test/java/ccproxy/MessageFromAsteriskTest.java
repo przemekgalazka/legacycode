@@ -52,8 +52,8 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
-        knownMsg, wiadomosc);
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse,
+        agentConnection, knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
     assertThat(wiadomosc.getWiadomosc()).isEqualTo("+OK LOGGED IN");
@@ -69,8 +69,8 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
-        knownMsg, wiadomosc);
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse,
+        agentConnection, knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
     assertThat(actualResult).isEqualTo(knownMsg);
@@ -87,7 +87,8 @@ public class MessageFromAsteriskTest {
 
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.agentResponsProcessor.processMessage(agentResponse, agentConnection, knownMsg, wiadomosc);
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentResponse, agentConnection,
+        knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
     assertThat(wiadomosc.getWiadomosc()).isEqualTo("+OK AGENT ALREADY LOGGED IN");
@@ -107,8 +108,8 @@ public class MessageFromAsteriskTest {
     boolean knownMsg = false;
 
     //-------------------- WHEN --------------------------------------------------------------------
-    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse, agentConnection,
-        knownMsg, wiadomosc);
+    boolean actualResult = sut.agentResponsProcessor.processMessage(agentLoggedInResponse,
+        agentConnection, knownMsg, wiadomosc);
 
     //-------------------- THEN --------------------------------------------------------------------
     assertThat(wiadomosc.getWiadomosc()).isEqualTo("+OK LOGGED OUT");

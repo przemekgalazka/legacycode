@@ -12,15 +12,8 @@ public class CommandLoggedIn extends Command {
 		super(orginalLine);
 	}
 
-	public static Command factoryInt(String line){
-		if (Command.equalsExtended(line, "+OK LOGGED IN")){
-			return new CommandLoggedIn(line);
-		} else {
-			return null;
-		}
-	}
 
-	@Override
+  @Override
 	public int getType() {
 		return CMD_OK_LOGGING_OK;
 	}

@@ -21,7 +21,7 @@ public class CommandWelcome extends Command {
         }
     }
 
-    @Override
+  @Override
     public int getType() {
         return CMD_WELCOME;
     }
